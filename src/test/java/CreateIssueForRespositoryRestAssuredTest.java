@@ -82,5 +82,4 @@ public class CreateIssueForRespositoryRestAssuredTest extends BaseTest {
         String actualState = jsonPath.get("state");
         Assert.assertEquals(actualState, "closed");
     }
-
 }

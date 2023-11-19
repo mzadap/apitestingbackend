@@ -14,16 +14,18 @@ import java.util.stream.Collectors;
 
 public class BaseTest {
 
+
     public static RequestSpecification settingBaseUrl() {
         RequestSpecification request = RestAssured.given();
         request.baseUri("https://api.github.com");
         request.header("Accept", "application/vnd.github+json");
-        request.header("Authorization", "Bearer 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");
+        request.header("Authorization", "Bearer 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");
         request.header("X-GitHub-Api-Version", "2022-11-28");
         return request;
     }
 
-    public String createRepository(File body, int statusCode) {
+    public String createRepository(Object classObject, int statusCode) {
+        String body = new Gson().toJson(classObject);
         String response = RestAssured.given()
                 .log()
                 .all()
@@ -34,7 +36,7 @@ public class BaseTest {
                 .then()
                 .log()
                 .all()
-                .assertThat()
+                    .assertThat()
                 .statusCode(statusCode)
                 .extract()
                 .response()
@@ -42,7 +44,8 @@ public class BaseTest {
         return response;
     }
 
-    public String createRepository(String body, int statusCode, String token) {
+    public String createRepository(Object classObject, int statusCode, String token) {
+        String body = new Gson().toJson(classObject);
         RestAssured.baseURI = "https://api.github.com";
         String response = RestAssured.given()
                 .log()
@@ -64,7 +67,8 @@ public class BaseTest {
         return response;
     }
 
-    public String createRepository1(File body, int statusCode, String endpoint) {
+    public String createRepository1(Object classObject, int statusCode, String endpoint) {
+        String body = new Gson().toJson(classObject);
         String response = RestAssured.given()
                 .log()
                 .all()
@@ -110,6 +114,49 @@ public class BaseTest {
                 .body(body)
                 .when()
                 .post("/repos/mzadap/Demo-repo-testing/issues")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(statusCode)
+                .extract()
+                .response()
+                .asString();
+        return response;
+    }
+
+    public String createIssue(int statusCode, Object classObject, String token) {
+        String body = new Gson().toJson(classObject);
+        RestAssured.baseURI = "https://api.github.com";
+        String response = RestAssured.given()
+                .log()
+                .all()
+                .header("Accept", "application/vnd.github+json")
+                .header("Authorization", "Bearer " + token)
+                .header("X-GitHub-Api-Version", "2022-11-28")
+                .body(body)
+                .when()
+                .post("/repos/mzadap/Demo-repo-testing/issues")
+                .then()
+                .log()
+                .all()
+                    .assertThat()
+                .statusCode(statusCode)
+                .extract()
+                .response()
+                .asString();
+        return response;
+    }
+
+    public String createIssue1(int statusCode, Object classObject, String endpoint) {
+        String body = new Gson().toJson(classObject);
+        String response = RestAssured.given()
+                .log()
+                .all()
+                .spec(settingBaseUrl())
+                .body(body)
+                .when()
+                .post(endpoint)
                 .then()
                 .log()
                 .all()

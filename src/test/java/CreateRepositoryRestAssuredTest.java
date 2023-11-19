@@ -1,5 +1,9 @@
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import model.CreateRepository;
 import org.BaseTest;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -8,32 +12,37 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CreateRepositoryRestAssuredTest extends BaseTest {
+    private CreateRepository createRepository;
+    private CreateRepository repository;
+    private final String name = "create-repository" + UUID.randomUUID();
 
-    File file = new File("C:\\Users\\nzadap\\Desktop\\DemoTesting\\api testing\\src\\main\\resources\\createrepository.json");
-    File file1 = new File("C:\\Users\\nzadap\\Desktop\\DemoTesting\\api testing\\src\\main\\resources\\duplicatekeycreaterespository.json");
-    File file2 = new File("C:\\Users\\nzadap\\Desktop\\DemoTesting\\api testing\\src\\main\\resources\\longnamecreaterespository.json");
-
+    @BeforeClass
+    public void setUp() {
+        createRepository = getObjectFromJson("createrepository.json", CreateRepository.class);
+        repository = getObjectFromJson("longnamecreaterespository.json", CreateRepository.class);
+        createRepository.setName(name);
+    }
     @Test
     public void shouldCreateNewRespository() {
-        String repoName = "new api repo " + UUID.randomUUID();
-        //String body = String.valueOf(file);
-        //System.out.println(body);
-        createRepository(file, 201);
+        String response = createRepository(createRepository, 201);
+        JsonPath jsonPath = new JsonPath(response);
+        String actualName = jsonPath.get("name");
+        Assert.assertEquals(actualName, name);
     }
 
     @Test(priority = 1)
     public void shouldNotCreateRespositoryIfTokenIsInvalid() {
-        createRepository("file", 401, "nan");
+        createRepository(createRepository, 401, "nan");
     }
 
     @Test(priority = 2)
     public void shouldNotCreateRepositoryIfInvalidBodyIsProvided() {
-        createRepository("abc", 400, "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");
+        createRepository("abc", 400, "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");
     }
 
     @Test(priority = 3)
     public void shouldNotCreateRespositoryIfInvalidEndpointIsProvided() {
-        createRepository1(file, 404, "/abc");
+        createRepository1(createRepository, 404, "/abc");
     }
 
     @Test(priority = 4)
@@ -66,7 +75,7 @@ public class CreateRepositoryRestAssuredTest extends BaseTest {
                 .then()
                 .log()
                 .all()
-                .assertThat()
+                    .assertThat()
                 .statusCode(422);
     }
 
@@ -87,7 +96,7 @@ public class CreateRepositoryRestAssuredTest extends BaseTest {
                 .then()
                 .log()
                 .all()
-                .assertThat()
+                    .assertThat()
                 .statusCode(422);
     }
 
@@ -98,13 +107,13 @@ public class CreateRepositoryRestAssuredTest extends BaseTest {
                 .log()
                 .all()
                 .header("Authorizationsssss", "oathhh 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")
-                .body(file)
+                .body(createRepository)
                 .when()
                 .post("/user/repos")
                 .then()
                 .log()
                 .all()
-                .assertThat()
+                    .assertThat()
                 .statusCode(401);
     }
 
@@ -115,19 +124,18 @@ public class CreateRepositoryRestAssuredTest extends BaseTest {
                 .log()
                 .all()
                 .spec(settingBaseUrl())
-                .body(file1)
+                .body(createRepository)
                 .when()
                 .post("/user/repos")
                 .then()
                 .log()
                 .all()
-                .assertThat()
+                    .assertThat()
                 .statusCode(422);
     }
 
     @Test(priority = 9)
     public void shouldNotCreateRespositoryIfNameIsTooLong() {
-        createRepository(file2, 422);
+        createRepository(repository, 422);
     }
-
 }
