@@ -1,0 +1,7 @@
+{
+  "name": "%s",
+  "description": "This repo is used for create repo using api's",
+  "homepage": "https://github.com",
+  "private": false,
+  "is_template": true
+}
